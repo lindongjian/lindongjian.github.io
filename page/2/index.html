@@ -626,7 +626,143 @@
 
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <ul>
+<li><strong>Q：</strong>在输好<code>URL</code>后按下enter键，浏览器会发起请求，如果<code>URL</code>不是<code>IP</code>地址，而是域名，将进行<strong>域名解析</strong>，那么这个<strong>域名解析</strong>是指什么？</li>
+</ul>
+<blockquote>
+<p><strong>A：</strong><code>IP</code>地址是网络上标识站点的数字地址，为了<strong>方便记忆</strong>，就采用域名来代替<code>IP</code>地址标识站点地址，<strong>域名解析</strong>就是域名到<code>IP</code>地址的转换过程</p>
+<blockquote>
+<p>域名解析按照以下步骤来进行：</p>
+<ul>
+<li>在本地硬盘有一个<code>hosts</code>文件，作用是将一些常用的网址域名与其对应的<code>IP</code>地址建立一个关联”数据库”。一般来说，系统回收箱自动从<code>hosts</code>文件中寻找对应的<code>IP</code>地址，如果有的话直接使用<code>hosts</code>文件里面的<code>IP</code>地址，然后进行端口确认。</li>
+<li>如果没找到 ，浏览器将调用解析程序，并称为<code>DNS</code>服务器的一个客户，把待解析的域名放在<code>DNS</code>请求报文中，以<code>UDP</code>用户数据报的方式发给本地<code>DNS</code>服务器。如果本地<code>DNS</code>服务器查找到相应的域名的<code>IP</code>地址，就把对应的<code>IP</code>地址放在回答报文中返回。</li>
+<li>如果还是没找到，即本地<code>DNS</code>服务器不知道被查询域名的<code>IP</code>地址，由于主机向本地<code>DNS</code>服务器的查询是<strong>递归</strong>查询，所以此时，本地<code>DNS</code>服务器就会以<code>DNS</code>客户的身份向其他<strong>根<code>DNS</code>服务器</strong>继续发出查询请求报文。本地<code>DNS</code>服务器向<strong>根<code>DNS</code>服务器</strong>的查询是迭代查询，当找到相应域名的<code>IP</code>地址后，就会把这个结果返回给<strong>最初</strong>发起查询请求的浏览器。  </li>
+</ul>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<ul>
+<li><strong>递归查询：</strong>在该模式下<code>DNS</code>服务器接收到客户机请求，必须返回一个准确的查询结果给客户机。如果该<code>DNS</code>服务器本地没有存储被查询的<code>DNS</code>信息，那么该服务器会替客户机询问其他服务器，并将返回的查询结果再返回给客户机。</li>
+<li><strong>迭代查询：</strong>在该模式下<code>DNS</code>服务器接收到客户机请求，如果该<code>DNS</code>服务器本地没有存储被查询的<code>DNS</code>信息，<code>DNS</code>服务器会向客户机提供其他能够解析查询请求的<code>DNS</code>服务器地址，让客户机再向这台<code>DNS</code>服务器提交请求，依次循环直到返回查询的结果为止</li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<ul>
+<li>经过上面的步骤后，浏览器已经获得输入域名的<code>IP</code>地址，可以进行下一步了。</li>
+</ul>
+</blockquote>
+</blockquote>
+<ul>
+<li><p>浏览器得到<code>IP</code>地址后，还要确认下一个端口，默认端口是<code>80</code>端口，一个服务器可能会提供不同的服务，这些服务通过端口来区分，可以指定不同的端口号。</p>
+</li>
+<li><p>浏览器得到<code>IP</code>地址并确认端口后，会向目标服务器发起<code>HTTP</code>请求 ，<code>HTTP</code>请求是通过<code>tcp</code>连接来发送的(如果是<code>HTTPS</code>则需要先建立<strong>SSL连接</strong>，不再是<code>TCP</code>连接。)以下的讨论是基于<code>HTTP</code>：</p>
+<blockquote>
+<ul>
+<li><p>浏览器会生成目标服务器的<code>HTTP</code>请求报文，请求报文一般包含请求方法、请求<code>URI</code>、协议版本、请求首部字段等内容，<code>HTTP</code>请求准备好后，<code>HTTP</code>请求报文从<strong>应用层</strong>传到<strong>传输层</strong>后会被分割为报文段，并会发起一条到达目标服务器的<code>TCP</code>连接，开始<strong><code>TCP</code>三次握手</strong>，过程图示：<br><img src="./1581057557814.png" alt="Alt text"></p>
+<blockquote>
+<p>解释：</p>
+<ul>
+<li><strong>客户端A</strong>主动向<strong>服务端B</strong>打电话：嗨，能听到吗？(SYN=1,seq=1)，此时A就开始等待B的回答(SYN-SENT状态)，此时A不知道B能不能听到</li>
+<li><strong>服务端B</strong>听到<strong>客户端A</strong>之后，可以确认他能听到A，但是他还要确认一下A能不能听到他自己的声音，于是B说：我能听到你的声音(ACK=1,ack=x+1)，你能听到我的声音吗(SYN=1,seq=y)，然后B开始等待A的回复(SYN-RECD状态)。</li>
+<li><strong>客户端A</strong>听到<strong>服务端B</strong>的话之后，A可以确认两件事：①是B可以听到他自己的说话，②是A也能听到B的说话。A已经可以随时说话和倾听了(ESTABLISHED状态)。但是此时的B还在等待中，并不知道A能不能听到，所以此时A需要再回复B说：我可以听到你的声音(ACK=1,ack=y+1)，开始愉快的聊天吧！(seq=x+1)，B听到这句话后便也可以随时说话和倾听了(ESTABLISHED状态)。</li>
+</ul>
+</blockquote>
+</li>
+<li><p><code>HTTP</code>请求的请求报文是直接附在第三次握手的消息 中</p>
+</li>
+<li><p><strong>小知识：</strong>为什么是三次握手，而不是两次或四次？</p>
+<blockquote>
+<p>有一种观点是三次握手是基于<code>TCP</code>协议的可靠性要求，这是确认双发都能进行收发的最小次数；两次确认不了，四次又太多。当时并没有完全意义上的可靠，不论握手多少次都只能表明握手的时候是可靠的，不能保证后面数据传输时一直可靠，因为<strong>信道</strong>是不可靠的，当然三次握手至少可以证明它曾经可靠，这是两次握手无法完成的，而四次握手甚至更多次的握手仅仅是提高”他曾经可靠”这个结论的可信程度。所以这个我收也只是确保可靠的一个基本需要，<code>TCP</code>协议的可靠性更多的是由校验和、定时器超时重传、确认机制。<br>在《计算机网络》一书中也有讲过这个问题，解释：<strong>三次握手是为了防止失效的连接请求报文段被服务的接收，从而产生错误。</strong>例子：<code>Client客户端</code>发出的一个连接请求报文段并没有丢失，而是在某个网络结点长时间的滞留了，以致延误到<strong>连接释放以后</strong>的某个时间到达<code>server</code>。本来这是一个<strong>早已失效的报文段</strong>。但<code>server</code>收到此失效的连接请求报文段后，就误以为是<code>Client</code><strong>再次发出</strong>的一个新的连接请求。于是就向<code>Client</code>发出确认报文段，同意建立连接。<br>假设不采用“三次握手”，那么只要<code>server</code>发出确认，新的连接就建立了。但是由于现在<code>Client</code>并没有发出建立连接的请求，因此不会理睬<code>server</code>的确认，也不会向<code>server</code>发送数据。而<code>server</code>却以为新的连接已经建立，并一直等待<code>Client</code>发来数据。这样，<code>server</code>的很多资源就白白浪费了。<br>采用<strong>三次握手</strong>的办法可以防止上述现象发生。例如刚才的情况：<code>Client</code>不会向<code>server</code>的确认发出确认。<code>server</code>由于收不到确认，就知道<code>Client</code>并没有要求建立连接</p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>连接建立后，开始进行数据传输，虽然浏览器知道目标服务器的<code>IP</code>和端口，但是数据也不能飞过去呀。<code>HTTP</code>请求报文段会从传输层传到网络层，在网络层被封装成<code>IP</code>数据包，网络层规定了通过怎样的路径(传输路线)到达目标服务器，并把数据包传送给对方。</p>
+</li>
+<li><p>网络层封装好的<code>IP</code>数据包会进一步传到下一层==》”数据链路层“，然后会再次被封装到<code>MAC</code>数据帧结构中，由于<code>IP</code>地址间的通信依赖于<code>MAC</code>地址，所以<code>MAC</code>数据帧结构中会有经过<code>ARP</code>协议解析后的<code>MAC</code>地址（不一定是目标服务器的<code>MAC</code>地址，因为实际上通信的双方在同一局域网内的情况很少，一般都会经过路由中转）。</p>
+</li>
+<li><p>数据链路层的<code>MAC</code>数据帧再向下传，便会到达物理层，这里要注意<strong>物理层考虑的是怎样才能在连接各种计算机的传输媒体上传输数据比特流，而不是值具体的传输媒体。</strong>物理层需要确保源氏的数据可在各种物理媒体上传输，他规定了传输媒体的机械特性、电气特性、功能特性、过程特性</p>
+</li>
+<li><p>通过<code>MAC</code>地址匹配，数据通过传输媒体到达目标服务器的物理层，物理层接收数据比特流然后向上传送到服务器的数据链路层，在数据链路层<code>MAC</code>数据帧将进行封装的逆操作，还原成<code>IP</code>数据包之后向上传送到网络层，网络层也进行封装的逆操作还原成<code>HTTP</code>请求报文段，然后这些报文段向上传到传输层，在传输层按原来的序号重新组装成完整的<code>HTTP</code>请求报文，再向上传到应用层，应用层的<code>HTTP</code>协议便会开始对请求进行处理</p>
+</li>
+<li><p>这个处理可能是直接返回静态资源，也可能经过<code>JAVA、PHP</code>等语言的进行处理后返回一个<code>HTTP</code>相应，它生产一个<code>HTTP</code>响应报文，与<code>HTTP</code>请求报文结构类似，然后这个响应报文会“走过”请求报文来时的路到达浏览器</p>
+</li>
+<li><p>浏览器接收<code>HTTP</code>响应，然后有可能释放<code>TCP</code>连接，也有可能重新使用这个<code>TCP</code>连接发送新的请求(持久连接)，这里了解一下<strong><code>TCP</code>连接的释放</strong>，不同于<code>TCP</code>连接建立的三次握手，<code>TCP</code>连接的释放是<strong>四次挥手</strong>，客户端和服务端都可以发起关闭请求，也存在两者同时发起关闭请求的情况，下图为客户端A主动发起关闭请求：</p>
+</li>
+</ul>
+<p><img src="./1581066468084.png" alt="Alt text"></p>
+<blockquote>
+<p><strong>解释：</strong><br><strong>客户端A</strong>对<strong>服务器端B</strong>要传的文件已经传完了，于是A对B说：我要传的文件已经传完了，我要准备下线了(seq=u,FIN=1)。然后A就等待B的回复(FIN-WAIT-1状态)</p>
+<p> <strong>服务端B</strong>看到<strong>客户端A</strong>的消息后，回复A说：我知道了，但是我还有文件给你(ACK=1,ack=u+1,seq=v)。B进入等他文件传完的状态(CLOSE-WAIT状态)。</p>
+<p> <strong>客户端A</strong>收到<strong>服务端B</strong>的回复后，就不能下线了，于是继续等待着B的文件传完(FIN-WAIT-2状态)， 几分钟后，B的文件传完了，此时B对A说：我的文件传完了，我也要下线了(seq=w,FIN=1,ACK=1,ack=u+1)，然后B等待A的回复来确认是否可以下线(LAST-ACK状态)</p>
+<p> <strong>客户端A</strong>收到<strong>服务端B</strong>的回复后，便对B说：行，你下线吧(ACK=1,seq=u+1,ack=w+1)。此时A会等待一段时间(2MSL,TIME-WAIT状态)，B收到后就直接下线了(CLOSE状态)，然后2MSL时间到了之后，A也下线(CLOSE状态)</p>
+<ul>
+<li><strong>Q：</strong>为什么服务器B在接到A的断开请求时不立即同意断开？</li>
+</ul>
+<p> <strong>A：</strong>当服务端B收到断开连接的请求时，服务端可能仍然有数据未发送完毕，所以服务端先发送确认信号，等所有数据发送完毕后再同意断开。</p>
+<ul>
+<li><strong>Q：</strong>为什么是四次挥手，而不是像建立连接一样的三次？</li>
+</ul>
+<p> <strong>A：</strong>因为<code>TCP</code>连接是全双工模式，服务端B收到A的断开请求时，仅仅表明A没有东西传给服务端B了，但此时服务器B可能向A的传输还没结束，所以服务器B要先给A一个确认收到A的断开请求的<code>ACK</code>报文，然后继续向A把信息传完，等传完之后服务器B再向A发送断开请求的报文段，等A收到并回复<code>ACK</code>报文后再释放连接。<br> 也就是说对于A来说他要发送请求给B并等待B确认，对于B来说也要发送请求给A等待A确认，两者都经过这两个过程才能完全释放<code>TCP</code>连接，而非单方面的释放。<br> 建立连接只需要建立，没有<strong>数据</strong>的影响，而释放连接还要考虑数据是否传输完，所以建立连接的时候B确认收到A的建立请求与B发送建立请求这一步可以合成一步成为<code>TCP</code>建立连接的第二次握手，而释放连接时却必须分开。</p>
+<ul>
+<li><strong>Q：</strong>最后一次握手后A为什么要等待<code>2MSL</code>？</li>
+</ul>
+<p> <strong>A：</strong>首先解释一下<code>MSL</code>，<code>MSL</code>是指最长报文段寿命，RFC793建议为两分钟，但实际上可根据实际情况而定，也就是说一个报文段最久可存在的时间是<code>MSL</code></p>
+<blockquote>
+<ol>
+<li>这是为了保证A发送的最后一个<code>ACK</code>报文能够到达服务端B，如果这个<code>ACK</code>报文丢失了，服务端B没有收到，B会超时重传第三次握手的<code>FIN+ACK</code>报文给A，这个时候处于等待的A就可以收到这个重传的<code>FIN+ACK</code>报文，并再次发送<code>ACK</code>报文给服务端B，并且再次重新启动<code>2MSL</code>计时器，最终结果是A和B都正常进入<code>CLOSE</code>状态。如果A发完<code>ACK</code>报文后就直接释放了<code>A--&gt;B</code>的连接，那么A就收不到B重传的<code>FIN+ACK</code>报文，也不能重新发送<code>ACK</code>报文，那么B就无法按正常步骤释放<code>B--&gt;A</code>的连接</li>
+<li>防止“已失效的连接请求报文”出现在下一个新的连接中，因为一个报文段的寿命是<code>MSL</code>，所以A在发送完最后一个<code>ACK</code>报文段之后，在经过时间<code>2MSL</code>，本连接持续的时间内所产生的所有报文段都将在网络中消失，这样这些旧的报文段就不会出现在下一个新的连接中。</li>
+</ol>
+</blockquote>
+</blockquote>
+<ul>
+<li><p>浏览器之后会检查<code>HTTP</code>的响应状态，主要通过响应码来判断</p>
+<blockquote>
+<p>1xx：表示通知信息的，比如请求收到了或正在处理<br>2xx：表示成功<br>3xx：表示重定向，一般完成请求还必须采取进一步的行动<br>4xx：表示客户端的错误<br>5xx：表示服务端的错误</p>
+</blockquote>
+</li>
+<li><p>如果响应可缓存，浏览器将把响应存入缓存</p>
+</li>
+<li><p>浏览器根据<code>HTTP</code>报头信息解码响应，决定如何处理这些响应，并展现响应，以响应为一个<code>HTTP</code>为例</p>
+</li>
+<li><p>这时浏览器开始自上而下，自左而右加载<code>HTML</code>文档，最开始会遇到<code>&lt;!DOCTYPE&gt;</code>声明，然后根据<code>&lt;!DOCTYPE&gt;</code>声明，浏览器就知道应该用哪种规范来解析这个文档</p>
+</li>
+<li><p>再继续边加载边解析，边生成<code>DOM</code>树，加载过程中遇到外部<code>CSS</code>文件，浏览器会另外发起一个请求，来获取<code>CSS</code>文件，获取<code>CSS</code>后会生成<code>CSS Rule</code>树，<code>DOM</code>树和<code>CSS Rule</code>树生成<code>render</code>树，页面开始边加载边渲染：</p>
+<blockquote>
+<ul>
+<li>渲染树和<code>DOM</code>树的关系：那些不可见的元素(如：<code>&lt;head&gt;..&lt;/head&gt;</code>、<code>display=none</code>的元素)不会被插入渲染树中；还有像一些节点是绝对定位或浮动的，这些节点会在文本流之外，因此他们会在渲染树和<code>DOM</code>树的不同位置，渲染树标识出真实的位置，并用一个占位结构标识出他们原来的位置，而<code>DOM</code>树上是他们原来的位置</li>
+<li>渲染包含”布局(<code>layout</code>)”和”绘制(<code>paint</code>)”这两个步骤，所谓“布局”就是给出每个<code>DOM</code>节点在浏览器窗口中的准确位置，“绘制”是指遍历<code>Render</code>树将布局好的<code>DOM</code>节点绘制在屏幕上。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>浏览器继续加载渲染，当遇到<code>&lt;script&gt;</code>标签，浏览器就会立即执行，此时会出现页面阻塞，不仅要等待文档中<code>JS</code>文件下载，加载完毕，还要等待<code>JS</code>解析执行完毕，才可以恢复<code>HTML</code>文档的加载解析。</p>
+<blockquote>
+<ul>
+<li>这是浏览器为了防止出现<code>JS</code>修改<code>DOM</code>树，需要重新构建<code>DOM</code>树的情况，<code>DOM</code>树改变浏览器需要回过头来重新渲染这部分代码，所以浏览器希望通过阻塞其他内容的下载和呈现，来避免出现更多的不必要的<code>Reflow(回流)</code></li>
+<li>如果<code>&lt;script&gt;</code>放在<code>&lt;head&gt;</code>中，那么<code>&lt;body&gt;</code>标签无法被加载，那么页面自然无法渲染。因此这将导致在<code>JS</code>代码完全执行完之前，页面是空白的，用户体验很差。因此推荐将所有<code>&lt;script&gt;</code>标签尽可能放到<code>&lt;body&gt;</code>标签的底部，以尽量减少对整个页面下载的影响，此时虽然还会存在一个脚本阻塞另一个脚本的问题，但是用户体验比上面的好很多，因为用户看到了大部分内容，而不是空白。</li>
+<li><code>defer</code>属性相当于告诉浏览器立即下载，延迟执行。它使得加载后续文档元素的过程将和<code>JS</code>文件加载并行进行（<strong>异步</strong>），但是<code>JS</code>文件的执行要在整个页面解析完成之后，<code>DOMComtentLoader</code>事件触发之前完成，执行顺序为出现的先后顺序。</li>
+<li><code>async</code>属性相当于告诉浏览器立即下载执行，并且页面的加载渲染不需要等待该脚本的加载和执行，它们两者会异步进行。标记为<code>async</code>的脚本不会那招他们出现的先后顺序执行，而是谁先下载完了谁先执行，它们一定会在页面的<code>load</code>事件触发之前执行，但可能在<code>DOMComtentLoader</code>事件触发之前或之后执行。基于前面所说的，异步脚本最好不要修改<code>DOM</code>，如果有多个异步脚本，他们之间最好没有依赖关系。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>浏览器继续加载渲染，如果遇到图片资源，浏览器也会另外发起一个请求，来获取图片资源，这是<strong>异步请求</strong>，所以不会等图片下载完，而是继续渲染后面的<code>HTML</code>文档。</p>
+</li>
+<li><p>等到服务器返回图片文件，如果之前并没有为这个图片设定宽高，那么由于图片占用了一定面积，影响了后面段落的排布，浏览器就会<code>Reflow</code></p>
+</li>
+<li><p>然后和<code>&lt;/html&gt;</code>碰面，此次的页面加载渲染过程完成，然后立即触发<code>DOMComtentLoader</code>事件，该事件是在形成完整的<code>DOM</code>树之后就会触发，而不会理会<strong>图像、<code>JS</code>文件、<code>CSS</code>文件、或其他资源</strong>是否已经下载完毕</p>
+</li>
+<li><p>当页面全部加载后，也就是所有图像、JS文件、CSS文件等外部资源都加载完成后触发<code>load</code>事件</p>
+</li>
+<li><p>用户在页面上进行交互时，可能会导致页面进行<code>Repaint</code>或<code>Reflow</code></p>
+</li>
+</ul>
+
       
 
       
